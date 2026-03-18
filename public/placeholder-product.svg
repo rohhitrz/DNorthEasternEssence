@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1200" viewBox="0 0 1200 1200" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="1200" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1B1612"/>
+      <stop offset="1" stop-color="#0C0A08"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="1200" fill="url(#bg)"/>
+  <circle cx="600" cy="600" r="260" fill="#C9A96E" fill-opacity="0.14"/>
+  <text x="50%" y="52%" dominant-baseline="middle" text-anchor="middle" fill="#C9A96E" font-family="Georgia, serif" font-size="52">DNorthEasternEssence</text>
+  <text x="50%" y="58%" dominant-baseline="middle" text-anchor="middle" fill="#9A8878" font-family="Arial, sans-serif" font-size="24">Pure Natural Essence</text>
+</svg>
