@@ -26,7 +26,7 @@ type PaymentMethod = "RAZORPAY" | "STRIPE" | "COD";
 
 export default function Page() {
 	const router = useRouter();
-	const { subtotal, itemCount, clearCart } = useCart();
+	const { subtotal, itemCount, clearCart, items } = useCart();
 	const [addresses, setAddresses] = useState<Address[]>([]);
 	const [addressId, setAddressId] = useState<string>("");
 	const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("COD");
@@ -96,6 +96,43 @@ export default function Page() {
 
 		setPlacingOrder(true);
 		try {
+			// Sync local cart snapshot first, then derive canonical total from server cart.
+			await fetch("/api/cart", {
+				method: "PUT",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({
+					items: items.map((item) => ({
+						productId: item.productId,
+						variantId: item.variantId ?? null,
+						quantity: item.quantity,
+					})),
+				}),
+			});
+
+			const cartResponse = await fetch("/api/cart", { method: "GET" });
+			if (!cartResponse.ok) {
+				throw new Error("Unable to verify cart totals. Please try again.");
+			}
+
+			const cartPayload = (await cartResponse.json()) as {
+				cart?: Array<{
+					quantity: number;
+					product: { basePrice: string | number };
+					variant: { priceModifier: string | number } | null;
+				}>;
+			};
+
+			const serverSubtotal = Number(
+				(cartPayload.cart || [])
+					.reduce((sum, line) => {
+						const unitPrice = Number(line.product.basePrice) + Number(line.variant?.priceModifier || 0);
+						return sum + unitPrice * line.quantity;
+					}, 0)
+					.toFixed(2)
+			);
+			const serverShipping = serverSubtotal >= FREE_SHIPPING_THRESHOLD_INR ? 0 : SHIPPING_COST_INR;
+			const canonicalTotal = Number((serverSubtotal + serverShipping).toFixed(2));
+
 			const idempotencyKey = typeof crypto !== "undefined" && crypto.randomUUID
 				? crypto.randomUUID()
 				: `${Date.now()}-${Math.random()}`;
@@ -108,7 +145,7 @@ export default function Page() {
 					paymentMethod,
 					couponCode: null,
 					idempotencyKey,
-					clientTotal: total,
+					clientTotal: canonicalTotal,
 					notes: null,
 				}),
 			});

@@ -203,36 +203,18 @@ export async function PUT(req: NextRequest) {
 			.map((item) => `${item.productId}:${item.variantId ?? "none"}`);
 
 		await prisma.$transaction(async (tx) => {
-			for (const item of safeItems) {
-				const existing = await tx.cart.findFirst({
-					where: {
+			// Replace server cart with the current client payload to avoid stale lines.
+			await tx.cart.deleteMany({ where: { userId: user.id } });
+
+			if (safeItems.length > 0) {
+				await tx.cart.createMany({
+					data: safeItems.map((item) => ({
 						userId: user.id,
 						productId: item.productId,
 						variantId: item.variantId ?? null,
-					},
-					select: {
-						id: true,
-						quantity: true,
-					},
+						quantity: item.quantity,
+					})),
 				});
-
-				if (existing) {
-					await tx.cart.update({
-						where: { id: existing.id },
-						data: {
-							quantity: Math.max(existing.quantity, item.quantity),
-						},
-					});
-				} else {
-					await tx.cart.create({
-						data: {
-							userId: user.id,
-							productId: item.productId,
-							variantId: item.variantId ?? null,
-							quantity: item.quantity,
-						},
-					});
-				}
 			}
 		});
 
@@ -245,14 +227,25 @@ export async function PUT(req: NextRequest) {
 export async function DELETE(req: NextRequest) {
 	try {
 		const user = await getAuthenticatedUser();
-		const { productId, variantId } = await req.json();
+		let payload: { productId?: string; variantId?: string | null; clearAll?: boolean } = {};
 
-			await prisma.cart.deleteMany({
-				where: {
-					userId: user.id,
-					productId,
-					variantId: variantId ?? null,
-				},
+		try {
+			payload = (await req.json()) as { productId?: string; variantId?: string | null; clearAll?: boolean };
+		} catch {
+			payload = {};
+		}
+
+		if (payload.clearAll || !payload.productId) {
+			await prisma.cart.deleteMany({ where: { userId: user.id } });
+			return NextResponse.json({ success: true, clearedAll: true });
+		}
+
+		await prisma.cart.deleteMany({
+			where: {
+				userId: user.id,
+				productId: payload.productId,
+				variantId: payload.variantId ?? null,
+			},
 		});
 
 		return NextResponse.json({ success: true });

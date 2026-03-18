@@ -104,9 +104,9 @@ export default function ProductCard({ product }: { product: ProductCardData }) {
 			</div>
 
 			<div className="space-y-3 p-4">
-				<div className="flex items-start justify-between gap-2">
-					<h3 className="font-heading text-lg text-foreground">{product.name}</h3>
-					{product.isFeatured && <Badge>Featured</Badge>}
+				<div className="flex min-w-0 items-start justify-between gap-2">
+					<h3 className="min-w-0 truncate font-heading text-lg text-foreground">{product.name}</h3>
+					{product.isFeatured && <Badge className="shrink-0">Featured</Badge>}
 				</div>
 
 				{product.origin ? <Badge variant="outline">Origin: {product.origin}</Badge> : null}

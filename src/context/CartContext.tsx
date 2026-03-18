@@ -84,6 +84,16 @@ export function CartContextProvider({ children }: { children: React.ReactNode })
 
 	const clearCart = () => {
 		save([]);
+
+		if (isSignedIn) {
+			void fetch("/api/cart", {
+				method: "DELETE",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ clearAll: true }),
+			}).catch((error) => {
+				console.error("[Cart] Clear failed", error);
+			});
+		}
 	};
 
 	const mergeFromSession = (sessionLines: CartLine[]) => {
@@ -196,7 +206,7 @@ export function CartContextProvider({ children }: { children: React.ReactNode })
 	}, [isLoaded, isSignedIn, storageKey]);
 
 	useEffect(() => {
-		if (!isLoaded || !isSignedIn || !storageKey || items.length === 0) {
+		if (!isLoaded || !isSignedIn || !storageKey || !hasMergedRef.current) {
 			return;
 		}
 

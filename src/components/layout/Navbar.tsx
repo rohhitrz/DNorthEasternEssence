@@ -24,13 +24,13 @@ export default function Navbar() {
 	}, []);
 
 	return (
-		<header className="sticky top-0 z-40 border-b border-border/80 bg-background/70 backdrop-blur-xl">
-			<div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-4 md:px-8">
-				<div className="flex items-center gap-3">
+		<header className="sticky top-0 z-40 overflow-x-clip border-b border-border/80 bg-background/70 backdrop-blur-xl">
+			<div className="mx-auto flex h-16 w-full max-w-7xl min-w-0 items-center justify-between gap-2 px-4 md:px-8">
+				<div className="flex min-w-0 items-center gap-2 sm:gap-3">
 					<div className="md:hidden">
 						<MobileNav />
 					</div>
-					<div className="flex items-center gap-1">
+					<div className="hidden items-center gap-1 sm:flex">
 						<Button
 							variant="ghost"
 							size="icon-sm"
@@ -48,7 +48,10 @@ export default function Navbar() {
 							<ChevronRight />
 						</Button>
 					</div>
-					<Link href="/" className="font-heading text-xl text-primary transition hover:text-[#d4b87a]">
+					<Link
+						href="/"
+						className="max-w-[10.5rem] truncate font-heading text-lg text-primary transition hover:text-[#d4b87a] sm:max-w-[15rem] sm:text-xl md:max-w-none"
+					>
 						{BRAND_NAME}
 					</Link>
 				</div>
@@ -65,7 +68,7 @@ export default function Navbar() {
 					))}
 				</nav>
 
-				<div className="flex items-center gap-2">
+				<div className="flex shrink-0 items-center gap-1 sm:gap-2">
 					<div className="hidden md:flex">
 						<select
 							value={currency}
@@ -78,12 +81,12 @@ export default function Navbar() {
 						</select>
 					</div>
 
-					<Button variant="ghost" size="icon-sm" aria-label="Search">
+					<Button variant="ghost" size="icon-sm" aria-label="Search" className="hidden sm:inline-flex">
 						<Search />
 					</Button>
 
 					<SignedIn>
-						<Link href="/profile/wishlist" className="relative">
+						<Link href="/profile/wishlist" className="relative hidden sm:block">
 							<Button variant="ghost" size="icon-sm" aria-label="Wishlist">
 								<Heart />
 							</Button>
@@ -93,7 +96,7 @@ export default function Navbar() {
 						</Link>
 					</SignedIn>
 					<SignedOut>
-						<div className="relative">
+						<div className="relative hidden sm:block">
 							<Link href="/sign-in" aria-label="Sign in to wishlist">
 								<Button variant="ghost" size="icon-sm">
 									<Heart />

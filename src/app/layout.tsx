@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/theme-provider";
 import { CartContextProvider } from "@/context/CartContext";
 import { CurrencyContextProvider } from "@/context/CurrencyContext";
+import FloatingNavButtons from "@/components/common/FloatingNavButtons";
 import { BRAND_DESCRIPTION, BRAND_NAME } from "@/lib/constants";
 import "./globals.css";
 
@@ -79,7 +80,10 @@ export default function RootLayout({
         <ClerkProvider>
           <ThemeProvider>
             <CurrencyContextProvider>
-              <CartContextProvider>{children}</CartContextProvider>
+              <CartContextProvider>
+                {children}
+                <FloatingNavButtons />
+              </CartContextProvider>
             </CurrencyContextProvider>
           </ThemeProvider>
           <Toaster richColors position="top-right" />
